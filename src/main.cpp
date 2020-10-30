@@ -1,19 +1,30 @@
 #include "Adafruit_CCS811.h"
 
+#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+
 Adafruit_CCS811 ccs;
+
+#define SEALEVELPRESSURE_HPA (1007)
+Adafruit_BME280 bme; // I2C BME280 sensor
 
 void setup() {
   Serial.begin(9600);
 
   Serial.println("CCS811 test");
-
   if(!ccs.begin()){+
-    Serial.println("Chyba senzoru, zkontroluj zapoojeni.");
-    while(1);
+    Serial.println("Could not find a valid CCS811 sensor, check wiring!");
+    // Force user to reboot device, show LED error effect
   }
 
-  // Wait for the sensor to be ready
-  while(!ccs.available());
+  Serial.println(F("BME280 test"));
+  if (! bme.begin(0x76, &Wire)) {
+      Serial.println("Could not find a valid BME280 sensor, check wiring!");
+      // Force user to reboot device, show LED error effect
+  }
+
 }
 
 void loop() {
@@ -25,9 +36,29 @@ void loop() {
       Serial.println(ccs.getTVOC());
     }
     else{
-      Serial.println("ERROR!");
-      while(1);
+      Serial.println("ERROR reading CCS data!");
+      // Force user to reboot device, show LED error effect
     }
   }
-  delay(500);
+
+  Serial.print("Temperature = ");
+  Serial.print(bme.readTemperature());
+  Serial.println(" *C");
+
+  Serial.print("Pressure = ");
+
+  Serial.print(bme.readPressure() / 100.0F);
+  Serial.println(" hPa");
+
+  Serial.print("Approx. Altitude = ");
+  Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+  Serial.println(" m");
+
+  Serial.print("Humidity = ");
+  Serial.print(bme.readHumidity());
+  Serial.println(" %");
+
+  Serial.println();
+
+  delay(1000);
 }
