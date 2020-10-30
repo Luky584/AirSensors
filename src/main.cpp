@@ -14,7 +14,7 @@ void setup() {
   Serial.begin(9600);
 
   Serial.println("CCS811 test");
-  if(!ccs.begin()){+
+  if(!ccs.begin()){
     Serial.println("Could not find a valid CCS811 sensor, check wiring!");
     // Force user to reboot device, show LED error effect
   }
